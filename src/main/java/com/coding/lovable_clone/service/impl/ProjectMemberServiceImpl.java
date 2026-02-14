@@ -4,9 +4,11 @@ import com.coding.lovable_clone.dto.member.InviteMemberRequest;
 import com.coding.lovable_clone.dto.member.MemberResponse;
 import com.coding.lovable_clone.dto.member.UpdateMemberRoleRequest;
 import com.coding.lovable_clone.service.ProjectMemberService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ProjectMemberServiceImpl implements ProjectMemberService {
     @Override
     public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
