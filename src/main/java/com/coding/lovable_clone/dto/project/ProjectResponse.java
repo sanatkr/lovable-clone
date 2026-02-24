@@ -10,5 +10,6 @@ public record ProjectResponse(
         Instant createdAt,
         Instant updatedAt,
         UserProfileResponse owner
+
 ) {
 }
