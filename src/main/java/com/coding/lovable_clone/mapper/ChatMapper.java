@@ -1,0 +1,14 @@
+package com.coding.lovable_clone.mapper;
+
+import com.coding.lovable_clone.dto.chat.ChatResponse;
+import com.coding.lovable_clone.entities.ChatMessage;
+import org.mapstruct.Mapper;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring")
+public interface ChatMapper {
+
+    List<ChatResponse> fromListOfChatMessage(List<ChatMessage> chatMessageList);
+
+}
