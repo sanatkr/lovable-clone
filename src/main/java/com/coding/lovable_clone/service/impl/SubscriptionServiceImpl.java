@@ -16,10 +16,12 @@ import com.coding.lovable_clone.repository.SubscriptionRepository;
 import com.coding.lovable_clone.repository.UserRepository;
 import com.coding.lovable_clone.security.AuthUtil;
 import com.coding.lovable_clone.service.SubscriptionService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Set;
 
 @Slf4j
@@ -67,6 +69,47 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
+    @Override
+    @Transactional
+    public void updateSubscription(String gatewaySubscriptionId, SubscriptionStatus status, Instant periodStart,
+                                   Instant periodEnd, Boolean cancelAtPeriodEnd, Long planId) {
+        Subscription subscription = getSubscription(gatewaySubscriptionId);
+
+        boolean hasSubscriptionUpdated = false;
+
+        if(status != null && status != subscription.getStatus()) {
+            subscription.setStatus(status);
+            hasSubscriptionUpdated = true;
+        }
+
+        if(periodStart != null && !periodStart.equals(subscription.getCurrentPeriodStart())) {
+            subscription.setCurrentPeriodStart(periodStart);
+            hasSubscriptionUpdated = true;
+        }
+
+        if(periodEnd != null && !periodEnd.equals(subscription.getCurrentPeriodEnd())) {
+            subscription.setCurrentPeriodEnd(periodEnd);
+            hasSubscriptionUpdated = true;
+        }
+
+        if(cancelAtPeriodEnd != null && cancelAtPeriodEnd != subscription.getCancelAtPeriodEnd()) {
+            subscription.setCancelAtPeriodEnd(cancelAtPeriodEnd);
+            hasSubscriptionUpdated = true;
+        }
+
+        if(planId != null && !planId.equals(subscription.getPlan().getId())) {
+            Plan newPlan = getPlan(planId);
+            subscription.setPlan(newPlan);
+            hasSubscriptionUpdated = true;
+        }
+
+        if(hasSubscriptionUpdated) {
+            log.debug("Subscription has been updated: {}", gatewaySubscriptionId);
+            subscriptionRepository.save(subscription);
+        }
+    }
+
+
     ///  Utility methods
 
     private User getUser(Long userId) {
@@ -78,6 +121,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return planRepository.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("Plan", planId.toString()));
 
+    }
+
+    private Subscription getSubscription(String gatewaySubscriptionId) {
+        return subscriptionRepository.findByStripeSubscriptionId(gatewaySubscriptionId).orElseThrow(() ->
+                new ResourceNotFoundException("Subscription", gatewaySubscriptionId));
     }
 
 
