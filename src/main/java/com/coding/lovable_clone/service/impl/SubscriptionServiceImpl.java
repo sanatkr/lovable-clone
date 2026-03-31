@@ -116,6 +116,20 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
+    @Override
+    public void renewSubscriptionPeriod(String gatewaySubscriptionId, Instant periodStart, Instant periodEnd) {
+        Subscription subscription = getSubscription(gatewaySubscriptionId);
+
+        Instant newStart = periodStart != null ? periodStart : subscription.getCurrentPeriodEnd();
+        subscription.setCurrentPeriodStart(newStart);
+        subscription.setCurrentPeriodEnd(periodEnd);
+
+        if(subscription.getStatus() == SubscriptionStatus.PAST_DUE || subscription.getStatus() == SubscriptionStatus.INCOMPLETE) {
+            subscription.setStatus(SubscriptionStatus.ACTIVE);
+        }
+
+        subscriptionRepository.save(subscription);
+    }
 
 
     ///  Utility methods
