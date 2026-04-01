@@ -140,6 +140,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             return;
         }
 
+
         subscription.setStatus(SubscriptionStatus.PAST_DUE);
         subscriptionRepository.save(subscription);
 
