@@ -162,6 +162,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         return countOfOwnedProjects < currentSubscription.plan().maxProjects();
+
     }
 
 
