@@ -19,4 +19,9 @@ public class SecurityExpressions {
                 map(role -> role.getPermissions().contains(projectPermission))
                 .orElse(false);
     }
+
+    public boolean canViewProject(Long projectId) {
+        return hasPermission(projectId, ProjectPermission.VIEW);
+    }
+
 }
