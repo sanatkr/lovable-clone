@@ -37,5 +37,9 @@ public class SecurityExpressions {
     }
 
 
+    public boolean canManageMembers(Long projectId) {
+        return hasPermission(projectId, ProjectPermission.MANAGE_MEMBERS);
+    }
+
 
 }
