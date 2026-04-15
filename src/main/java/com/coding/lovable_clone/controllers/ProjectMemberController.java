@@ -32,9 +32,8 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @RequestBody InviteMemberRequest request
     ) {
-        Long userId = 1L;
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                projectMemberService.inviteMember(projectId, request, userId)
+                projectMemberService.inviteMember(projectId, request)
         );
     }
 
