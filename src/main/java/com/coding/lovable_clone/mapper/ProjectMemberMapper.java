@@ -1,6 +1,7 @@
 package com.coding.lovable_clone.mapper;
 
 import com.coding.lovable_clone.dto.member.MemberResponse;
+import com.coding.lovable_clone.entities.ProjectMember;
 import com.coding.lovable_clone.entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,4 +12,10 @@ public interface ProjectMemberMapper {
     @Mapping(target = "userId", source = "id")
     @Mapping(target = "role", constant = "OWNER")
     MemberResponse toProjectMemberResponseFromOwner(User owner);
+
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "username", source = "user.username")
+    @Mapping(target = "name", source = "user.name")
+    @Mapping(target = "role", source = "projectRole")
+    MemberResponse toProjectMemberResponseFromMember(ProjectMember projectMember);
 }
