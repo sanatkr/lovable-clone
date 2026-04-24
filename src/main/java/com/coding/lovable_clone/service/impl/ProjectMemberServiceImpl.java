@@ -3,6 +3,10 @@ package com.coding.lovable_clone.service.impl;
 import com.coding.lovable_clone.dto.member.InviteMemberRequest;
 import com.coding.lovable_clone.dto.member.MemberResponse;
 import com.coding.lovable_clone.dto.member.UpdateMemberRoleRequest;
+import com.coding.lovable_clone.entities.Project;
+import com.coding.lovable_clone.entities.ProjectMember;
+import com.coding.lovable_clone.entities.ProjectMemberId;
+import com.coding.lovable_clone.entities.User;
 import com.coding.lovable_clone.mapper.ProjectMemberMapper;
 import com.coding.lovable_clone.repository.ProjectMemberRepository;
 import com.coding.lovable_clone.repository.ProjectRepository;
@@ -13,8 +17,10 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -29,23 +35,45 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     UserRepository userRepository;
     AuthUtil authUtil;
 
+
     @Override
-    public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
-        return List.of();
+    @PreAuthorize("@security.canViewMembers(#projectId)")
+    public List<MemberResponse> getProjectMembers(Long projectId) {
+        return projectMemberRepository.findByIdProjectId(projectId)
+                .stream()
+                .map(projectMemberMapper::toProjectMemberResponseFromMember)
+                .toList();
     }
 
     @Override
-    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
-        return null;
+    @PreAuthorize("@security.canManageMembers(#projectId)")
+    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request) {
+        Long userId = authUtil.getCurrentUserId();
+        Project project = getAccessibleProjectById(projectId, userId);
+
+        User invitee = userRepository.findByUsername(request.username()).orElseThrow();
+
+        if(invitee.getId().equals(userId)) {
+            throw new RuntimeException("Cannot invite yourself");
+        }
+
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, invitee.getId());
+
+        if(projectMemberRepository.existsById(projectMemberId)) {
+            throw new RuntimeException("Cannot invite once again");
+        }
+
+        ProjectMember member = ProjectMember.builder()
+                .id(projectMemberId)
+                .project(project)
+                .user(invitee)
+                .projectRole(request.role())
+                .invitedAt(Instant.now())
+                .build();
+
+        projectMemberRepository.save(member);
+
+        return projectMemberMapper.toProjectMemberResponseFromMember(member);
     }
 
-    @Override
-    public MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request, Long userId) {
-        return null;
-    }
-
-    @Override
-    public MemberResponse deleteProjectMember(Long projectId, Long memberId, Long userId) {
-        return null;
-    }
 }
