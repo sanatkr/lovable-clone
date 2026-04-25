@@ -76,4 +76,12 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
         return projectMemberMapper.toProjectMemberResponseFromMember(member);
     }
 
+    ///  INTERNAL FUNCTIONS
+
+    public Project getAccessibleProjectById(Long projectId, Long userId) {
+        return projectRepository.findAccessibleProjectById(projectId, userId).orElseThrow();
+    }
+
+
+
 }
