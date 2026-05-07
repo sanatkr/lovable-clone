@@ -11,6 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 @ToString
+
 public class ChatSessionId implements Serializable {
 
     Long projectId;
